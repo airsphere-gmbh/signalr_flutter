@@ -141,7 +141,7 @@ public class SwiftSignalrFlutterPlugin: NSObject, FlutterPlugin, FLTSignalRHostA
     }
   }
 
-  public func invokeMethodMethodName(_ methodName: String, arguments: [String], completion: @escaping (String?, FlutterError?) -> Void) {
+  public func invokeMethodMethodName(_ methodName: String, arguments: [Object], completion: @escaping (String?, FlutterError?) -> Void) {
     do {
       if let hub = self.hub {
         try hub.invoke(methodName, arguments: arguments, callback: { (res, error) in

@@ -10,18 +10,26 @@ import io.flutter.plugin.common.BasicMessageChannel;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MessageCodec;
 import io.flutter.plugin.common.StandardMessageCodec;
+import io.flutter.plugin.common.JSONMessageCodec;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import com.google.gson.*;
 
 /**Generated class from Pigeon. */
 @SuppressWarnings({"unused", "unchecked", "CodeBlock2Expr", "RedundantSuppression"})
 public class SignalrApi {
+  public static Gson GsonInstance = new GsonBuilder()
+          .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
+          .create();
 
   /** Transport method of the signalr connection. */
   public enum Transport {
@@ -226,28 +234,30 @@ public class SignalrApi {
     void error(Throwable error);
   }
   private static class SignalRHostApiCodec extends StandardMessageCodec {
-    public static final SignalRHostApiCodec INSTANCE = new SignalRHostApiCodec();
+    public static final JSONMessageCodec INSTANCE = JSONMessageCodec.INSTANCE;
+
+
     private SignalRHostApiCodec() {}
     @Override
     protected Object readValueOfType(byte type, @NonNull ByteBuffer buffer) {
-      switch (type) {
-        case (byte)128:         
-          return ConnectionOptions.fromMap((Map<String, Object>) readValue(buffer));
+          return JSONMessageCodec.INSTANCE.decodeMessage(buffer);
+      // switch (type) {
+      //   case (byte)127:         
+      //     return ConnectionOptions.fromMap((Map<String, Object>) readValue(buffer));
         
-        default:        
-          return super.readValueOfType(type, buffer);
+      //   default:        
         
-      }
+      // }
     }
     @Override
     protected void writeValue(@NonNull ByteArrayOutputStream stream, Object value)     {
-      if (value instanceof ConnectionOptions) {
-        stream.write(128);
-        writeValue(stream, ((ConnectionOptions) value).toMap());
-      } else 
-{
-        super.writeValue(stream, value);
-      }
+        super.writeValue(stream, JSONMessageCodec.INSTANCE.encodeMessage(value));
+//       if (value instanceof ConnectionOptions) {
+//         stream.write(127);
+//         writeValue(stream, ((ConnectionOptions) value).toMap());
+//       } else 
+// {
+//       }
     }
   }
 
@@ -257,7 +267,7 @@ public class SignalrApi {
     void reconnect(Result<String> result);
     void stop(Result<Void> result);
     void isConnected(Result<Boolean> result);
-    void invokeMethod(@NonNull String methodName, @NonNull List<String> arguments, Result<String> result);
+    void invokeMethod(@NonNull String methodName, @NonNull List<Object> arguments, Result<String> result);
 
     /** The codec used by SignalRHostApi. */
     static MessageCodec<Object> getCodec() {
@@ -271,9 +281,9 @@ public class SignalrApi {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
             try {
-              ArrayList<Object> args = (ArrayList<Object>)message;
+              ConnectionOptions[] args = SignalrApi.GsonInstance.fromJson(message.toString(), ConnectionOptions[].class);
               assert args != null;
-              ConnectionOptions connectionOptionsArg = (ConnectionOptions)args.get(0);
+              ConnectionOptions connectionOptionsArg = args[0];
               if (connectionOptionsArg == null) {
                 throw new NullPointerException("connectionOptionsArg unexpectedly null.");
               }
@@ -393,13 +403,13 @@ public class SignalrApi {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
             try {
-              ArrayList<Object> args = (ArrayList<Object>)message;
+              Object[] args = SignalrApi.GsonInstance.fromJson(message.toString(), Object[].class);
               assert args != null;
-              String methodNameArg = (String)args.get(0);
+              String methodNameArg = (String)args[0];
               if (methodNameArg == null) {
                 throw new NullPointerException("methodNameArg unexpectedly null.");
               }
-              List<String> argumentsArg = (List<String>)args.get(1);
+              List<Object> argumentsArg = (List<Object>)args[1];
               if (argumentsArg == null) {
                 throw new NullPointerException("argumentsArg unexpectedly null.");
               }
@@ -428,7 +438,7 @@ public class SignalrApi {
     }
   }
   private static class SignalRPlatformApiCodec extends StandardMessageCodec {
-    public static final SignalRPlatformApiCodec INSTANCE = new SignalRPlatformApiCodec();
+    public static final JSONMessageCodec INSTANCE = JSONMessageCodec.INSTANCE;
     private SignalRPlatformApiCodec() {}
     @Override
     protected Object readValueOfType(byte type, @NonNull ByteBuffer buffer) {
@@ -437,7 +447,7 @@ public class SignalrApi {
           return StatusChangeResult.fromMap((Map<String, Object>) readValue(buffer));
         
         default:        
-          return super.readValueOfType(type, buffer);
+          return JSONMessageCodec.INSTANCE.decodeMessage(buffer);
         
       }
     }
@@ -448,7 +458,7 @@ public class SignalrApi {
         writeValue(stream, ((StatusChangeResult) value).toMap());
       } else 
 {
-        super.writeValue(stream, value);
+        super.writeValue(stream, JSONMessageCodec.INSTANCE.encodeMessage(value));
       }
     }
   }
@@ -464,16 +474,16 @@ public class SignalrApi {
     }
     /** The codec used by SignalRPlatformApi. */
     static MessageCodec<Object> getCodec() {
-      return       SignalRPlatformApiCodec.INSTANCE;
+      return       JSONMessageCodec.INSTANCE;
     }
     public void onStatusChange(@NonNull StatusChangeResult statusChangeResultArg, Reply<Void> callback) {
       BasicMessageChannel<Object> channel =
           new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.SignalRPlatformApi.onStatusChange", getCodec());
-      channel.send(new ArrayList<Object>(Collections.singletonList(statusChangeResultArg)), channelReply -> {
+      channel.send(new ArrayList<Object>(List.of(JSONObject.wrap(statusChangeResultArg.toMap()))), channelReply -> {
         callback.reply(null);
       });
     }
-    public void onNewMessage(@NonNull String hubNameArg, @NonNull String messageArg, Reply<Void> callback) {
+    public void onNewMessage(@NonNull String hubNameArg, @NonNull Object messageArg, Reply<Void> callback) {
       BasicMessageChannel<Object> channel =
           new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.SignalRPlatformApi.onNewMessage", getCodec());
       channel.send(new ArrayList<Object>(Arrays.asList(hubNameArg, messageArg)), channelReply -> {

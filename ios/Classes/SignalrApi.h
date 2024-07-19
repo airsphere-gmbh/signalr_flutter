@@ -60,7 +60,7 @@ NSObject<FlutterMessageCodec> *FLTSignalRHostApiGetCodec(void);
 - (void)reconnectWithCompletion:(void(^)(NSString *_Nullable, FlutterError *_Nullable))completion;
 - (void)stopWithCompletion:(void(^)(FlutterError *_Nullable))completion;
 - (void)isConnectedWithCompletion:(void(^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
-- (void)invokeMethodMethodName:(NSString *)methodName arguments:(NSArray<NSString *> *)arguments completion:(void(^)(NSString *_Nullable, FlutterError *_Nullable))completion;
+- (void)invokeMethodMethodName:(NSString *)methodName arguments:(NSArray<NSObject *> *)arguments completion:(void(^)(NSString *_Nullable, FlutterError *_Nullable))completion;
 @end
 
 extern void FLTSignalRHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<FLTSignalRHostApi> *_Nullable api);

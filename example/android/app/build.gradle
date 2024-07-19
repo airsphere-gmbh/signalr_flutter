@@ -41,9 +41,9 @@ android {
 
     defaultConfig {
         applicationId "dev.asdevs.signalr_flutter_example"
-        compileSdk 33
         minSdkVersion 21
-        targetSdkVersion 33
+        compileSdk flutter.compileSdkVersion
+        targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

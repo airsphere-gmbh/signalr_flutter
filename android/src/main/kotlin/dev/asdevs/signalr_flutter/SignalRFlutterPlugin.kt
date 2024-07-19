@@ -61,7 +61,7 @@ class SignalrFlutterPlugin : FlutterPlugin, SignalrApi.SignalRHostApi {
                     Handler(Looper.getMainLooper()).post {
                         signalrApi.onNewMessage(methodName, res) { }
                     }
-                }, String::class.java)
+                }, Any::class.java)
             }
 
             connection.connected {
@@ -174,7 +174,7 @@ class SignalrFlutterPlugin : FlutterPlugin, SignalrApi.SignalRHostApi {
 
     override fun invokeMethod(
         methodName: String,
-        arguments: MutableList<String>,
+        arguments: MutableList<Any>,
         result: SignalrApi.Result<String>?
     ) {
         try {

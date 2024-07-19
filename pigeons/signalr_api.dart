@@ -43,7 +43,7 @@ abstract class SignalRHostApi {
   bool isConnected();
 
   @async
-  String invokeMethod(String methodName, List<String?> arguments);
+  String invokeMethod(String methodName, List<dynamic> arguments);
 }
 
 @FlutterApi()

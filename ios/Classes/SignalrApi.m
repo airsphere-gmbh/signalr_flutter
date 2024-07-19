@@ -247,7 +247,7 @@ void FLTSignalRHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
         NSString *arg_methodName = GetNullableObjectAtIndex(args, 0);
-        NSArray<NSString *> *arg_arguments = GetNullableObjectAtIndex(args, 1);
+        NSArray<NSObject *> *arg_arguments = GetNullableObjectAtIndex(args, 1);
         [api invokeMethodMethodName:arg_methodName arguments:arg_arguments completion:^(NSString *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
