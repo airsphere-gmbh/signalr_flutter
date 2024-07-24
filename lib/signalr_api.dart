@@ -60,8 +60,11 @@ class ConnectionOptions {
       hubName: pigeonMap['hubName'] as String?,
       queryString: pigeonMap['queryString'] as String?,
       hubMethods: (pigeonMap['hubMethods'] as List<Object?>?)?.cast<String?>(),
-      headers: (pigeonMap['headers'] as Map<Object?, Object?>?)?.cast<String?, String?>(),
-      transport: pigeonMap['transport'] != null ? Transport.values[pigeonMap['transport']! as int] : null,
+      headers: (pigeonMap['headers'] as Map<Object?, Object?>?)
+          ?.cast<String?, String?>(),
+      transport: pigeonMap['transport'] != null
+          ? Transport.values[pigeonMap['transport']! as int]
+          : null,
     );
   }
 
@@ -101,7 +104,9 @@ class StatusChangeResult {
     final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
     return StatusChangeResult(
       connectionId: pigeonMap['connectionId'] as String?,
-      status: pigeonMap['status'] != null ? ConnectionStatus.values[pigeonMap['status']! as int] : null,
+      status: pigeonMap['status'] != null
+          ? ConnectionStatus.values[pigeonMap['status']! as int]
+          : null,
       errorMessage: pigeonMap['errorMessage'] as String?,
     );
   }
@@ -150,7 +155,8 @@ class SignalRHostApi {
   /// Constructor for [SignalRHostApi].  The [binaryMessenger] named argument is
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  SignalRHostApi({BinaryMessenger? binaryMessenger}) : _binaryMessenger = binaryMessenger;
+  SignalRHostApi({BinaryMessenger? binaryMessenger})
+      : _binaryMessenger = binaryMessenger;
   final BinaryMessenger? _binaryMessenger;
 
   static const MessageCodec<Object?> codec = JSONMessageCodec();
@@ -159,14 +165,16 @@ class SignalRHostApi {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.SignalRHostApi.connect', codec,
         binaryMessenger: _binaryMessenger);
-    final Map<Object?, Object?>? replyMap = await channel.send([arg_connectionOptions]) as Map<Object?, Object?>?;
+    final Map<Object?, Object?>? replyMap =
+        await channel.send([arg_connectionOptions]) as Map<Object?, Object?>?;
     if (replyMap == null) {
       throw PlatformException(
         code: 'channel-error',
         message: 'Unable to establish connection on channel.',
       );
     } else if (replyMap['error'] != null) {
-      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
+      final Map<Object?, Object?> error =
+          (replyMap['error'] as Map<Object?, Object?>?)!;
       throw PlatformException(
         code: (error['code'] as String?)!,
         message: error['message'] as String?,
@@ -186,14 +194,16 @@ class SignalRHostApi {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.SignalRHostApi.reconnect', codec,
         binaryMessenger: _binaryMessenger);
-    final Map<Object?, Object?>? replyMap = await channel.send(null) as Map<Object?, Object?>?;
+    final Map<Object?, Object?>? replyMap =
+        await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
       throw PlatformException(
         code: 'channel-error',
         message: 'Unable to establish connection on channel.',
       );
     } else if (replyMap['error'] != null) {
-      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
+      final Map<Object?, Object?> error =
+          (replyMap['error'] as Map<Object?, Object?>?)!;
       throw PlatformException(
         code: (error['code'] as String?)!,
         message: error['message'] as String?,
@@ -213,14 +223,16 @@ class SignalRHostApi {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.SignalRHostApi.stop', codec,
         binaryMessenger: _binaryMessenger);
-    final Map<Object?, Object?>? replyMap = await channel.send(null) as Map<Object?, Object?>?;
+    final Map<Object?, Object?>? replyMap =
+        await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
       throw PlatformException(
         code: 'channel-error',
         message: 'Unable to establish connection on channel.',
       );
     } else if (replyMap['error'] != null) {
-      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
+      final Map<Object?, Object?> error =
+          (replyMap['error'] as Map<Object?, Object?>?)!;
       throw PlatformException(
         code: (error['code'] as String?)!,
         message: error['message'] as String?,
@@ -235,14 +247,16 @@ class SignalRHostApi {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.SignalRHostApi.isConnected', codec,
         binaryMessenger: _binaryMessenger);
-    final Map<Object?, Object?>? replyMap = await channel.send(null) as Map<Object?, Object?>?;
+    final Map<Object?, Object?>? replyMap =
+        await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
       throw PlatformException(
         code: 'channel-error',
         message: 'Unable to establish connection on channel.',
       );
     } else if (replyMap['error'] != null) {
-      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
+      final Map<Object?, Object?> error =
+          (replyMap['error'] as Map<Object?, Object?>?)!;
       throw PlatformException(
         code: (error['code'] as String?)!,
         message: error['message'] as String?,
@@ -258,31 +272,29 @@ class SignalRHostApi {
     }
   }
 
-  Future<String> invokeMethod(String arg_methodName, List<dynamic> arg_arguments) async {
+  Future<dynamic> invokeMethod(
+      String arg_methodName, List<dynamic> arg_arguments) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.SignalRHostApi.invokeMethod', codec,
         binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
-        await channel.send(<Object?>[arg_methodName, arg_arguments]) as Map<Object?, Object?>?;
+        await channel.send(<Object?>[arg_methodName, arg_arguments])
+            as Map<Object?, Object?>?;
     if (replyMap == null) {
       throw PlatformException(
         code: 'channel-error',
         message: 'Unable to establish connection on channel.',
       );
     } else if (replyMap['error'] != null) {
-      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
+      final Map<Object?, Object?> error =
+          (replyMap['error'] as Map<Object?, Object?>?)!;
       throw PlatformException(
         code: (error['code'] as String?)!,
         message: error['message'] as String?,
         details: error['details'],
       );
-    } else if (replyMap['result'] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
     } else {
-      return (replyMap['result'] as String?)!;
+      return (replyMap['result']);
     }
   }
 }
@@ -316,7 +328,8 @@ abstract class SignalRPlatformApi {
 
   Future<void> onStatusChange(StatusChangeResult statusChangeResult);
   Future<void> onNewMessage(String hubName, dynamic message);
-  static void setup(SignalRPlatformApi? api, {BinaryMessenger? binaryMessenger}) {
+  static void setup(SignalRPlatformApi? api,
+      {BinaryMessenger? binaryMessenger}) {
     {
       final BasicMessageChannel<dynamic> channel = BasicMessageChannel<dynamic>(
           'dev.flutter.pigeon.SignalRPlatformApi.onStatusChange', codec,
@@ -325,7 +338,8 @@ abstract class SignalRPlatformApi {
         channel.setMessageHandler(null);
       } else {
         channel.setMessageHandler((dynamic message) async {
-          assert(message != null, 'Argument for dev.flutter.pigeon.SignalRPlatformApi.onStatusChange was null.');
+          assert(message != null,
+              'Argument for dev.flutter.pigeon.SignalRPlatformApi.onStatusChange was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final StatusChangeResult? arg_statusChangeResult =
               StatusChangeResult.fromJson(args[0] as Map<String, dynamic>);
@@ -344,7 +358,8 @@ abstract class SignalRPlatformApi {
         channel.setMessageHandler(null);
       } else {
         channel.setMessageHandler((dynamic message) async {
-          assert(message != null, 'Argument for dev.flutter.pigeon.SignalRPlatformApi.onNewMessage was null.');
+          assert(message != null,
+              'Argument for dev.flutter.pigeon.SignalRPlatformApi.onNewMessage was null.');
           final List<Object?> args = (message as List<dynamic>?)!;
           final String? arg_hubName = (args[0] as String?);
           assert(arg_hubName != null,

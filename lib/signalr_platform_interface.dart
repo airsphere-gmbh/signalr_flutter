@@ -51,5 +51,5 @@ abstract class SignalrPlatformInterface {
   Future<bool> isConnected();
 
   /// Invoke any server method with optional [arguments].
-  Future<String> invokeMethod(String methodName, {List<dynamic>? arguments});
+  Future<dynamic> invokeMethod(String methodName, {List<dynamic>? arguments});
 }

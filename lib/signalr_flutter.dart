@@ -117,7 +117,7 @@ class SignalR extends SignalrPlatformInterface implements SignalRPlatformApi {
 
   /// Invoke any server method with optional [arguments].
   @override
-  Future<String> invokeMethod(String methodName,
+  Future<dynamic> invokeMethod(String methodName,
       {List<dynamic>? arguments}) async {
     try {
       return await _signalrApi.invokeMethod(

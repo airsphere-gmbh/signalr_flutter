@@ -175,15 +175,15 @@ class SignalrFlutterPlugin : FlutterPlugin, SignalrApi.SignalRHostApi {
     override fun invokeMethod(
         methodName: String,
         arguments: MutableList<Any>,
-        result: SignalrApi.Result<String>?
+        result: SignalrApi.Result<Any?>
     ) {
         try {
-            val res: SignalRFuture<String> =
-                hub.invoke(String::class.java, methodName, *arguments.toTypedArray())
+            val res: SignalRFuture<Any?> =
+                hub.invoke(Any::class.java, methodName, *arguments.toTypedArray())
 
-            res.done { msg: String? ->
+            res.done { msg: Any? ->
                 Handler(Looper.getMainLooper()).post {
-                    result?.success(msg ?: "")
+                    result?.success(msg)
                 }
             }
 

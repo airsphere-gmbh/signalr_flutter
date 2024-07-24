@@ -267,7 +267,7 @@ public class SignalrApi {
     void reconnect(Result<String> result);
     void stop(Result<Void> result);
     void isConnected(Result<Boolean> result);
-    void invokeMethod(@NonNull String methodName, @NonNull List<Object> arguments, Result<String> result);
+    void invokeMethod(@NonNull String methodName, @NonNull List<Object> arguments, Result<Object> result);
 
     /** The codec used by SignalRHostApi. */
     static MessageCodec<Object> getCodec() {
@@ -413,8 +413,8 @@ public class SignalrApi {
               if (argumentsArg == null) {
                 throw new NullPointerException("argumentsArg unexpectedly null.");
               }
-              Result<String> resultCallback = new Result<String>() {
-                public void success(String result) {
+              Result<Object> resultCallback = new Result<Object>() {
+                public void success(Object result) {
                   wrapped.put("result", result);
                   reply.reply(wrapped);
                 }
