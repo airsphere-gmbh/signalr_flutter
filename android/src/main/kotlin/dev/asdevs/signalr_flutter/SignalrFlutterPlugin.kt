@@ -4,14 +4,15 @@ import android.os.Handler
 import android.os.Looper
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import microsoft.aspnet.signalr.client.ConnectionState
-import microsoft.aspnet.signalr.client.Credentials
-import microsoft.aspnet.signalr.client.LogLevel
-import microsoft.aspnet.signalr.client.SignalRFuture
-import microsoft.aspnet.signalr.client.hubs.HubConnection
-import microsoft.aspnet.signalr.client.hubs.HubProxy
-import microsoft.aspnet.signalr.client.transport.LongPollingTransport
-import microsoft.aspnet.signalr.client.transport.ServerSentEventsTransport
+import com.github.signalr4j.client.ConnectionState
+import com.github.signalr4j.client.Credentials
+import com.github.signalr4j.client.LogLevel
+import com.github.signalr4j.client.SignalRFuture
+import com.github.signalr4j.client.hubs.HubConnection
+import com.github.signalr4j.client.hubs.HubProxy
+import com.github.signalr4j.client.transport.LongPollingTransport
+import com.github.signalr4j.client.transport.ServerSentEventsTransport
+import com.github.signalr4j.client.transport.WebsocketTransport
 import java.lang.Exception
 
 /** SignalrFlutterPlugin */
@@ -40,12 +41,14 @@ class SignalrFlutterPlugin : FlutterPlugin, SignalrApi.SignalRHostApi {
                     HubConnection(
                         connectionOptions.baseUrl,
                         connectionOptions.queryString,
+
                         true
                     ) { _: String, _: LogLevel ->
                     }
                 } else {
                     HubConnection(connectionOptions.baseUrl)
                 }
+
 
             if (connectionOptions.headers?.isNotEmpty() == true) {
                 val cred = Credentials { request ->
@@ -55,6 +58,7 @@ class SignalrFlutterPlugin : FlutterPlugin, SignalrApi.SignalRHostApi {
             }
 
             hub = connection.createHubProxy(connectionOptions.hubName)
+
 
             connectionOptions.hubMethods?.forEach { methodName ->
                 hub.on(methodName, { res ->
@@ -113,12 +117,18 @@ class SignalrFlutterPlugin : FlutterPlugin, SignalrApi.SignalRHostApi {
                 Handler(Looper.getMainLooper()).post {
                     val statusChangeResult = SignalrApi.StatusChangeResult()
                     statusChangeResult.status = SignalrApi.ConnectionStatus.CONNECTION_ERROR
-                    statusChangeResult.errorMessage = handler.localizedMessage
+                    statusChangeResult.errorMessage = handler?.localizedMessage
                     signalrApi.onStatusChange(statusChangeResult) { }
                 }
             }
 
             when (connectionOptions.transport) {
+                SignalrApi.Transport.WEB_SOCKETS -> connection.start(
+                    WebsocketTransport(
+                        connection.logger
+                    )
+                )
+
                 SignalrApi.Transport.SERVER_SENT_EVENTS -> connection.start(
                     ServerSentEventsTransport(
                         connection.logger

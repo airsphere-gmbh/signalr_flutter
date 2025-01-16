@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 /// Transport method of the signalr connection.
 enum Transport {
   auto,
+  webSockets,
   serverSentEvents,
   longPolling,
 }

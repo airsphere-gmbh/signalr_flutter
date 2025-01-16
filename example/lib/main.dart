@@ -30,9 +30,9 @@ class _MyAppState extends State<MyApp> {
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     signalR = SignalR(
-      "<Your server url here>",
-      "<Your hub name here>",
-      hubMethods: ["<Your Hub Method Names>"],
+      "http://192.168.49.22/PaxControlServer/SignalR/",
+      "SessionService",
+      hubMethods: [],
       statusChangeCallback: _onStatusChange,
       hubCallback: _onNewMessage,
     );
@@ -67,10 +67,13 @@ class _MyAppState extends State<MyApp> {
           child: const Icon(Icons.cast_connected),
           onPressed: () async {
             final isConnected = await signalR.isConnected();
+            print(isConnected);
             if (!isConnected) {
+              print("connecting");
               final connId = await signalR.connect();
               print("Connection ID: $connId");
             } else {
+              print("stopping");
               signalR.stop();
             }
           },

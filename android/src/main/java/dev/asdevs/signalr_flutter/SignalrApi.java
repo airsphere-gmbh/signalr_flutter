@@ -34,8 +34,10 @@ public class SignalrApi {
   /** Transport method of the signalr connection. */
   public enum Transport {
     AUTO(0),
-    SERVER_SENT_EVENTS(1),
-    LONG_POLLING(2);
+    WEB_SOCKETS(1),
+    SERVER_SENT_EVENTS(2),
+    LONG_POLLING(3);
+
 
     private int index;
     private Transport(final int index) {
@@ -297,7 +299,7 @@ public class SignalrApi {
                   reply.reply(wrapped);
                 }
               };
-
+              AllCertificatesAndHostsTruster.apply();
               api.connect(connectionOptionsArg, resultCallback);
             }
             catch (Error | RuntimeException exception) {
