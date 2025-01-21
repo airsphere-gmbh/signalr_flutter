@@ -86,6 +86,12 @@ public class SignalrApi {
       this.hubMethods = setterArg;
     }
 
+    private boolean reconnectOnError;
+    public boolean getReconnectOnError() { return reconnectOnError; }
+    public void setReconnectOnError( boolean setterArg) {
+      this.reconnectOnError = setterArg;
+    }
+
     private @Nullable Map<String, String> headers;
     public @Nullable Map<String, String> getHeaders() { return headers; }
     public void setHeaders(@Nullable Map<String, String> setterArg) {
@@ -119,6 +125,11 @@ public class SignalrApi {
         this.hubMethods = setterArg;
         return this;
       }
+      private boolean reconnectOnError;
+      public @NonNull Builder setReconnectOnError(boolean setterArg) {
+        this.reconnectOnError = setterArg;
+        return this;
+      }
       private @Nullable Map<String, String> headers;
       public @NonNull Builder setHeaders(@Nullable Map<String, String> setterArg) {
         this.headers = setterArg;
@@ -135,6 +146,7 @@ public class SignalrApi {
         pigeonReturn.setHubName(hubName);
         pigeonReturn.setQueryString(queryString);
         pigeonReturn.setHubMethods(hubMethods);
+        pigeonReturn.setReconnectOnError(reconnectOnError);
         pigeonReturn.setHeaders(headers);
         pigeonReturn.setTransport(transport);
         return pigeonReturn;
@@ -146,6 +158,7 @@ public class SignalrApi {
       toMapResult.put("hubName", hubName);
       toMapResult.put("queryString", queryString);
       toMapResult.put("hubMethods", hubMethods);
+      toMapResult.put("reconnectOnError", reconnectOnError);
       toMapResult.put("headers", headers);
       toMapResult.put("transport", transport == null ? null : transport.index);
       return toMapResult;
@@ -160,6 +173,13 @@ public class SignalrApi {
       pigeonResult.setQueryString((String)queryString);
       Object hubMethods = map.get("hubMethods");
       pigeonResult.setHubMethods((List<String>)hubMethods);
+      Object reconnectOnError = map.get("reconnectOnError");
+      if(reconnectOnError == null){
+        pigeonResult.setReconnectOnError(false);
+      }
+      else{
+        pigeonResult.setReconnectOnError((boolean)reconnectOnError);
+      }
       Object headers = map.get("headers");
       pigeonResult.setHeaders((Map<String, String>)headers);
       Object transport = map.get("transport");

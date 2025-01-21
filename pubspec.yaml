@@ -1,6 +1,6 @@
 name: signalr_flutter
 description: A flutter plugin for .net SignalR client. This client is for ASP.Net SignalR, not for .Net Core SignalR.
-version: 0.2.0
+version: 0.2.1
 repository: https://github.com/AS-Devs/signalr_flutter
 issue_tracker: https://github.com/AS-Devs/signalr_flutter/issues
 

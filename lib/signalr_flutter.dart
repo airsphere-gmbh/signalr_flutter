@@ -15,6 +15,7 @@ class SignalR extends SignalrPlatformInterface implements SignalRPlatformApi {
     String? queryString,
     Map<String, String>? headers,
     List<String>? hubMethods,
+    bool? reconnectOnError,
     Transport transport = Transport.auto,
     void Function(ConnectionStatus?)? statusChangeCallback,
     void Function(String, dynamic)? hubCallback,
@@ -23,8 +24,10 @@ class SignalR extends SignalrPlatformInterface implements SignalRPlatformApi {
           baseUrl,
           hubName,
           queryString: queryString,
+          transport: transport,
           headers: headers,
           hubMethods: hubMethods,
+          reconnectOnError: reconnectOnError,
           statusChangeCallback: statusChangeCallback,
           hubCallback: hubCallback,
         );
@@ -65,6 +68,7 @@ class SignalR extends SignalrPlatformInterface implements SignalRPlatformApi {
         hubName: hubName,
         queryString: queryString,
         hubMethods: hubMethods,
+        reconnectOnError: reconnectOnError,
         headers: headers,
         transport: transport,
       );

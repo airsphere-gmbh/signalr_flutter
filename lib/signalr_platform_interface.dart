@@ -5,6 +5,7 @@ abstract class SignalrPlatformInterface {
       {this.queryString,
       this.headers,
       this.hubMethods,
+      this.reconnectOnError,
       this.transport = Transport.auto,
       this.statusChangeCallback,
       this.hubCallback})
@@ -23,6 +24,9 @@ abstract class SignalrPlatformInterface {
 
   /// List of Hub method names you want to subscribe. Every subsequent message from server gets called on [hubCallback].
   final List<String>? hubMethods;
+
+  /// Determines if the connection should be automatically reconnected on error.
+  final bool? reconnectOnError;
 
   /// This callback gets called whenever SignalR connection status with server changes.
   final void Function(ConnectionStatus?)? statusChangeCallback;

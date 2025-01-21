@@ -48,7 +48,7 @@ class SignalrFlutterPlugin : FlutterPlugin, SignalrApi.SignalRHostApi {
                 } else {
                     HubConnection(connectionOptions.baseUrl)
                 }
-
+            connection.setReconnectOnError(connectionOptions.reconnectOnError);
 
             if (connectionOptions.headers?.isNotEmpty() == true) {
                 val cred = Credentials { request ->
@@ -117,7 +117,10 @@ class SignalrFlutterPlugin : FlutterPlugin, SignalrApi.SignalRHostApi {
                 Handler(Looper.getMainLooper()).post {
                     val statusChangeResult = SignalrApi.StatusChangeResult()
                     statusChangeResult.status = SignalrApi.ConnectionStatus.CONNECTION_ERROR
-                    statusChangeResult.errorMessage = handler?.localizedMessage
+                    if(handler != null){
+                        statusChangeResult.errorMessage = "Message: ${handler.message}\nType: ${handler.stackTraceToString()}"
+
+                    }
                     signalrApi.onStatusChange(statusChangeResult) { }
                 }
             }

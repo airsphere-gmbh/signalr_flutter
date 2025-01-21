@@ -32,6 +32,7 @@ class ConnectionOptions {
     this.hubName,
     this.queryString,
     this.hubMethods,
+    this.reconnectOnError,
     this.headers,
     this.transport,
   });
@@ -40,6 +41,7 @@ class ConnectionOptions {
   String? hubName;
   String? queryString;
   List<String?>? hubMethods;
+  bool? reconnectOnError;
   Map<String?, String?>? headers;
   Transport? transport;
 
@@ -49,6 +51,7 @@ class ConnectionOptions {
     pigeonMap['hubName'] = hubName;
     pigeonMap['queryString'] = queryString;
     pigeonMap['hubMethods'] = hubMethods;
+    pigeonMap['reconnectOnError'] = reconnectOnError;
     pigeonMap['headers'] = headers;
     pigeonMap['transport'] = transport?.index;
     return pigeonMap;
@@ -61,6 +64,7 @@ class ConnectionOptions {
       hubName: pigeonMap['hubName'] as String?,
       queryString: pigeonMap['queryString'] as String?,
       hubMethods: (pigeonMap['hubMethods'] as List<Object?>?)?.cast<String?>(),
+      reconnectOnError: pigeonMap['reconnectOnError'] as bool?,
       headers: (pigeonMap['headers'] as Map<Object?, Object?>?)
           ?.cast<String?, String?>(),
       transport: pigeonMap['transport'] != null
@@ -75,6 +79,7 @@ class ConnectionOptions {
     hubName = d.hubName;
     queryString = d.queryString;
     hubMethods = d.hubMethods;
+    reconnectOnError = d.reconnectOnError;
     headers = d.headers;
     transport = d.transport;
   }
