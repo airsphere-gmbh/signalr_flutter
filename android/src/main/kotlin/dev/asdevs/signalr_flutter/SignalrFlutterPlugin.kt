@@ -116,6 +116,7 @@ class SignalrFlutterPlugin : FlutterPlugin, SignalrApi.SignalRHostApi {
             connection.error { handler ->
                 Handler(Looper.getMainLooper()).post {
                     val statusChangeResult = SignalrApi.StatusChangeResult()
+                    statusChangeResult.connectionId = connection.connectionId;
                     statusChangeResult.status = SignalrApi.ConnectionStatus.CONNECTION_ERROR
                     if(handler != null){
                         statusChangeResult.errorMessage = "Message: ${handler.message}\nType: ${handler.stackTraceToString()}"
