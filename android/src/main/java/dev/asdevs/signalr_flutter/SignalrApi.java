@@ -319,7 +319,6 @@ public class SignalrApi {
                   reply.reply(wrapped);
                 }
               };
-              AllCertificatesAndHostsTruster.apply();
               api.connect(connectionOptionsArg, resultCallback);
             }
             catch (Error | RuntimeException exception) {
