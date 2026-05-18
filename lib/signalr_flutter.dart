@@ -68,13 +68,12 @@ class SignalR extends SignalrPlatformInterface implements SignalRPlatformApi {
         hubName: hubName,
         queryString: queryString,
         hubMethods: hubMethods,
-        reconnectOnError: reconnectOnError,
         headers: headers,
         transport: transport,
       );
 
       // Register SignalR Callbacks
-      SignalRPlatformApi.setup(this);
+      SignalRPlatformApi.setUp(this);
 
       connectionId = await _signalrApi.connect(options);
 
