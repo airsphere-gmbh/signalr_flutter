@@ -1,7 +1,7 @@
 import 'package:pigeon/pigeon.dart';
 
 /// Transport method of the signalr connection.
-enum Transport { auto, serverSentEvents, longPolling }
+enum Transport { auto, webSockets, serverSentEvents, longPolling }
 
 /// SignalR connection status
 enum ConnectionStatus {
@@ -18,6 +18,7 @@ class ConnectionOptions {
   String? hubName;
   String? queryString;
   List<String?>? hubMethods;
+  bool? reconnectOnError;
   Map<String?, String?>? headers;
   Transport? transport;
 }
@@ -52,7 +53,7 @@ abstract class SignalRPlatformApi {
   void onStatusChange(StatusChangeResult statusChangeResult);
 
   @async
-  void onNewMessage(String hubName, String message);
+  void onNewMessage(String hubName, dynamic message);
 }
 
 void configurePigeon(PigeonOptions opts) {

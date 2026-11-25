@@ -29,10 +29,12 @@ public class SwiftSignalrFlutterPlugin: NSObject, FlutterPlugin, FLTSignalRHostA
     }
 
     switch connectionOptions.transport {
-    case .longPolling:
-      connection.transport = Transport.longPolling
+    case .webSockets:
+      connection.transport = Transport.webSockets
     case .serverSentEvents:
       connection.transport = Transport.serverSentEvents
+    case .longPolling:
+      connection.transport = Transport.longPolling
     case .auto:
       connection.transport = Transport.auto
     @unknown default:
@@ -50,7 +52,8 @@ public class SwiftSignalrFlutterPlugin: NSObject, FlutterPlugin, FLTSignalRHostA
     if let hubMethods = connectionOptions.hubMethods, !hubMethods.isEmpty {
       hubMethods.forEach { (methodName) in
         hub.on(methodName) { (args) in
-          SwiftSignalrFlutterPlugin.signalrApi?.onNewMessageHubName(methodName, message: args?[0] as? String ?? "", completion: { error in })
+          let message: Any = args?.first ?? ""
+          SwiftSignalrFlutterPlugin.signalrApi?.onNewMessageHubName(methodName, message: message, completion: { error in })
         }
       }
     }
@@ -98,13 +101,17 @@ public class SwiftSignalrFlutterPlugin: NSObject, FlutterPlugin, FLTSignalRHostA
       SwiftSignalrFlutterPlugin.signalrApi?.onStatusChange(statusChangeResult, completion: { error in })
     }
 
-    connection.error = { error in
+    connection.error = { [weak self] error in
       print("SignalR Error: \(error ?? [:])")
       let statusChangeResult : FLTStatusChangeResult = FLTStatusChangeResult.init()
-      statusChangeResult.connectionId = nil
+      statusChangeResult.connectionId = self?.connection.connectionID
       statusChangeResult.status = FLTConnectionStatus.connectionError
       statusChangeResult.errorMessage = error?.description
       SwiftSignalrFlutterPlugin.signalrApi?.onStatusChange(statusChangeResult, completion: { error in })
+
+      if connectionOptions.reconnectOnError?.boolValue == true {
+        self?.connection.start()
+      }
     }
 
     connection.start()
@@ -141,14 +148,14 @@ public class SwiftSignalrFlutterPlugin: NSObject, FlutterPlugin, FLTSignalRHostA
     }
   }
 
-  public func invokeMethodMethodName(_ methodName: String, arguments: [Object], completion: @escaping (String?, FlutterError?) -> Void) {
+  public func invokeMethodMethodName(_ methodName: String, arguments: [Any], completion: @escaping (Any?, FlutterError?) -> Void) {
     do {
       if let hub = self.hub {
         try hub.invoke(methodName, arguments: arguments, callback: { (res, error) in
           if let error = error {
             completion(nil, FlutterError(code: "platform-error", message: String(describing: error), details: nil))
           } else {
-            completion(res as? String ?? "", nil)
+            completion(res, nil)
           }
         })
       } else {

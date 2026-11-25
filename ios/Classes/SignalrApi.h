@@ -11,8 +11,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// Transport method of the signalr connection.
 typedef NS_ENUM(NSUInteger, FLTTransport) {
   FLTTransportAuto = 0,
-  FLTTransportServerSentEvents = 1,
-  FLTTransportLongPolling = 2,
+  FLTTransportWebSockets = 1,
+  FLTTransportServerSentEvents = 2,
+  FLTTransportLongPolling = 3,
 };
 
 /// SignalR connection status
@@ -33,12 +34,14 @@ typedef NS_ENUM(NSUInteger, FLTConnectionStatus) {
     hubName:(nullable NSString *)hubName
     queryString:(nullable NSString *)queryString
     hubMethods:(nullable NSArray<NSString *> *)hubMethods
+    reconnectOnError:(nullable NSNumber *)reconnectOnError
     headers:(nullable NSDictionary<NSString *, NSString *> *)headers
     transport:(FLTTransport)transport;
 @property(nonatomic, copy, nullable) NSString * baseUrl;
 @property(nonatomic, copy, nullable) NSString * hubName;
 @property(nonatomic, copy, nullable) NSString * queryString;
 @property(nonatomic, strong, nullable) NSArray<NSString *> * hubMethods;
+@property(nonatomic, strong, nullable) NSNumber * reconnectOnError;
 @property(nonatomic, strong, nullable) NSDictionary<NSString *, NSString *> * headers;
 @property(nonatomic, assign) FLTTransport transport;
 @end
@@ -60,7 +63,7 @@ NSObject<FlutterMessageCodec> *FLTSignalRHostApiGetCodec(void);
 - (void)reconnectWithCompletion:(void(^)(NSString *_Nullable, FlutterError *_Nullable))completion;
 - (void)stopWithCompletion:(void(^)(FlutterError *_Nullable))completion;
 - (void)isConnectedWithCompletion:(void(^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
-- (void)invokeMethodMethodName:(NSString *)methodName arguments:(NSArray<NSObject *> *)arguments completion:(void(^)(NSString *_Nullable, FlutterError *_Nullable))completion;
+- (void)invokeMethodMethodName:(NSString *)methodName arguments:(NSArray *)arguments completion:(void(^)(id _Nullable, FlutterError *_Nullable))completion;
 @end
 
 extern void FLTSignalRHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<FLTSignalRHostApi> *_Nullable api);
@@ -71,6 +74,6 @@ NSObject<FlutterMessageCodec> *FLTSignalRPlatformApiGetCodec(void);
 @interface FLTSignalRPlatformApi : NSObject
 - (instancetype)initWithBinaryMessenger:(id<FlutterBinaryMessenger>)binaryMessenger;
 - (void)onStatusChangeStatusChangeResult:(FLTStatusChangeResult *)statusChangeResult completion:(void(^)(NSError *_Nullable))completion;
-- (void)onNewMessageHubName:(NSString *)hubName message:(NSString *)message completion:(void(^)(NSError *_Nullable))completion;
+- (void)onNewMessageHubName:(NSString *)hubName message:(id)message completion:(void(^)(NSError *_Nullable))completion;
 @end
 NS_ASSUME_NONNULL_END
