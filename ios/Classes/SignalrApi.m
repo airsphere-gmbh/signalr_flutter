@@ -47,6 +47,7 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
     hubName:(nullable NSString *)hubName
     queryString:(nullable NSString *)queryString
     hubMethods:(nullable NSArray<NSString *> *)hubMethods
+    reconnectOnError:(nullable NSNumber *)reconnectOnError
     headers:(nullable NSDictionary<NSString *, NSString *> *)headers
     transport:(FLTTransport)transport {
   FLTConnectionOptions* pigeonResult = [[FLTConnectionOptions alloc] init];
@@ -54,6 +55,7 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
   pigeonResult.hubName = hubName;
   pigeonResult.queryString = queryString;
   pigeonResult.hubMethods = hubMethods;
+  pigeonResult.reconnectOnError = reconnectOnError;
   pigeonResult.headers = headers;
   pigeonResult.transport = transport;
   return pigeonResult;
@@ -64,6 +66,7 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
   pigeonResult.hubName = GetNullableObject(dict, @"hubName");
   pigeonResult.queryString = GetNullableObject(dict, @"queryString");
   pigeonResult.hubMethods = GetNullableObject(dict, @"hubMethods");
+  pigeonResult.reconnectOnError = GetNullableObject(dict, @"reconnectOnError");
   pigeonResult.headers = GetNullableObject(dict, @"headers");
   pigeonResult.transport = [GetNullableObject(dict, @"transport") integerValue];
   return pigeonResult;
@@ -75,6 +78,7 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
     @"hubName" : (self.hubName ?: [NSNull null]),
     @"queryString" : (self.queryString ?: [NSNull null]),
     @"hubMethods" : (self.hubMethods ?: [NSNull null]),
+    @"reconnectOnError" : (self.reconnectOnError ?: [NSNull null]),
     @"headers" : (self.headers ?: [NSNull null]),
     @"transport" : @(self.transport),
   };
@@ -108,57 +112,8 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
 }
 @end
 
-@interface FLTSignalRHostApiCodecReader : FlutterStandardReader
-@end
-@implementation FLTSignalRHostApiCodecReader
-- (nullable id)readValueOfType:(UInt8)type 
-{
-  switch (type) {
-    case 128:     
-      return [FLTConnectionOptions fromMap:[self readValue]];
-    
-    default:    
-      return [super readValueOfType:type];
-    
-  }
-}
-@end
-
-@interface FLTSignalRHostApiCodecWriter : FlutterStandardWriter
-@end
-@implementation FLTSignalRHostApiCodecWriter
-- (void)writeValue:(id)value 
-{
-  if ([value isKindOfClass:[FLTConnectionOptions class]]) {
-    [self writeByte:128];
-    [self writeValue:[value toMap]];
-  } else 
-{
-    [super writeValue:value];
-  }
-}
-@end
-
-@interface FLTSignalRHostApiCodecReaderWriter : FlutterStandardReaderWriter
-@end
-@implementation FLTSignalRHostApiCodecReaderWriter
-- (FlutterStandardWriter *)writerWithData:(NSMutableData *)data {
-  return [[FLTSignalRHostApiCodecWriter alloc] initWithData:data];
-}
-- (FlutterStandardReader *)readerWithData:(NSData *)data {
-  return [[FLTSignalRHostApiCodecReader alloc] initWithData:data];
-}
-@end
-
-
 NSObject<FlutterMessageCodec> *FLTSignalRHostApiGetCodec() {
-  static FlutterStandardMessageCodec *sSharedObject = nil;
-  static dispatch_once_t sPred = 0;
-  dispatch_once(&sPred, ^{
-    FLTSignalRHostApiCodecReaderWriter *readerWriter = [[FLTSignalRHostApiCodecReaderWriter alloc] init];
-    sSharedObject = [FlutterStandardMessageCodec codecWithReaderWriter:readerWriter];
-  });
-  return sSharedObject;
+  return [FlutterJSONMessageCodec sharedInstance];
 }
 
 void FLTSignalRHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<FLTSignalRHostApi> *api) {
@@ -172,7 +127,13 @@ void FLTSignalRHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject
       NSCAssert([api respondsToSelector:@selector(connectConnectionOptions:completion:)], @"FLTSignalRHostApi api (%@) doesn't respond to @selector(connectConnectionOptions:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        FLTConnectionOptions *arg_connectionOptions = GetNullableObjectAtIndex(args, 0);
+        id rawOptions = GetNullableObjectAtIndex(args, 0);
+        FLTConnectionOptions *arg_connectionOptions = nil;
+        if ([rawOptions isKindOfClass:[NSDictionary class]]) {
+          arg_connectionOptions = [FLTConnectionOptions fromMap:rawOptions];
+        } else if ([rawOptions isKindOfClass:[FLTConnectionOptions class]]) {
+          arg_connectionOptions = rawOptions;
+        }
         [api connectConnectionOptions:arg_connectionOptions completion:^(NSString *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
@@ -247,8 +208,8 @@ void FLTSignalRHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
         NSString *arg_methodName = GetNullableObjectAtIndex(args, 0);
-        NSArray<NSObject *> *arg_arguments = GetNullableObjectAtIndex(args, 1);
-        [api invokeMethodMethodName:arg_methodName arguments:arg_arguments completion:^(NSString *_Nullable output, FlutterError *_Nullable error) {
+        NSArray *arg_arguments = GetNullableObjectAtIndex(args, 1);
+        [api invokeMethodMethodName:arg_methodName arguments:arg_arguments completion:^(id _Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
       }];
@@ -258,57 +219,9 @@ void FLTSignalRHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject
     }
   }
 }
-@interface FLTSignalRPlatformApiCodecReader : FlutterStandardReader
-@end
-@implementation FLTSignalRPlatformApiCodecReader
-- (nullable id)readValueOfType:(UInt8)type 
-{
-  switch (type) {
-    case 128:     
-      return [FLTStatusChangeResult fromMap:[self readValue]];
-    
-    default:    
-      return [super readValueOfType:type];
-    
-  }
-}
-@end
-
-@interface FLTSignalRPlatformApiCodecWriter : FlutterStandardWriter
-@end
-@implementation FLTSignalRPlatformApiCodecWriter
-- (void)writeValue:(id)value 
-{
-  if ([value isKindOfClass:[FLTStatusChangeResult class]]) {
-    [self writeByte:128];
-    [self writeValue:[value toMap]];
-  } else 
-{
-    [super writeValue:value];
-  }
-}
-@end
-
-@interface FLTSignalRPlatformApiCodecReaderWriter : FlutterStandardReaderWriter
-@end
-@implementation FLTSignalRPlatformApiCodecReaderWriter
-- (FlutterStandardWriter *)writerWithData:(NSMutableData *)data {
-  return [[FLTSignalRPlatformApiCodecWriter alloc] initWithData:data];
-}
-- (FlutterStandardReader *)readerWithData:(NSData *)data {
-  return [[FLTSignalRPlatformApiCodecReader alloc] initWithData:data];
-}
-@end
-
 
 NSObject<FlutterMessageCodec> *FLTSignalRPlatformApiGetCodec() {
-  static FlutterStandardMessageCodec *sSharedObject = nil;
-  static dispatch_once_t sPred = 0;
-  dispatch_once(&sPred, ^{
-    FLTSignalRPlatformApiCodecReaderWriter *readerWriter = [[FLTSignalRPlatformApiCodecReaderWriter alloc] init];
-    sSharedObject = [FlutterStandardMessageCodec codecWithReaderWriter:readerWriter];
-  });
-  return sSharedObject;
+  return [FlutterJSONMessageCodec sharedInstance];
 }
 
 @interface FLTSignalRPlatformApi ()
@@ -329,16 +242,19 @@ NSObject<FlutterMessageCodec> *FLTSignalRPlatformApiGetCodec() {
     [FlutterBasicMessageChannel
       messageChannelWithName:@"dev.flutter.pigeon.SignalRPlatformApi.onStatusChange"
       binaryMessenger:self.binaryMessenger
-      codec:FLTSignalRPlatformApiGetCodec()      ];  [channel sendMessage:@[arg_statusChangeResult ?: [NSNull null]] reply:^(id reply) {
+      codec:FLTSignalRPlatformApiGetCodec()];
+  NSDictionary *dict = [arg_statusChangeResult toMap];
+  [channel sendMessage:@[dict ?: [NSNull null]] reply:^(id reply) {
     completion(nil);
   }];
 }
-- (void)onNewMessageHubName:(NSString *)arg_hubName message:(NSString *)arg_message completion:(void(^)(NSError *_Nullable))completion {
+- (void)onNewMessageHubName:(NSString *)arg_hubName message:(id)arg_message completion:(void(^)(NSError *_Nullable))completion {
   FlutterBasicMessageChannel *channel =
     [FlutterBasicMessageChannel
       messageChannelWithName:@"dev.flutter.pigeon.SignalRPlatformApi.onNewMessage"
       binaryMessenger:self.binaryMessenger
-      codec:FLTSignalRPlatformApiGetCodec()      ];  [channel sendMessage:@[arg_hubName ?: [NSNull null], arg_message ?: [NSNull null]] reply:^(id reply) {
+      codec:FLTSignalRPlatformApiGetCodec()];
+  [channel sendMessage:@[arg_hubName ?: [NSNull null], arg_message ?: [NSNull null]] reply:^(id reply) {
     completion(nil);
   }];
 }
